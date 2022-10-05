@@ -333,18 +333,18 @@ def convert_intersections_to_wgs_coords(intersections):
     return intersections
 
 
-def write_output(output_file_name, cluster_intersections):
+def write_output(output_file_name, clustered_intersections):
     """
-    Write cluster intersections to an output file.
+    Write clustered intersections (a 2D list of floats) to an output file.
     """
-    num_clusters = cluster_intersections.shape[0]
+    num_clusters = clustered_intersections.shape[0]
 
     print("Number of output ICM clusters: {0:d}".format(num_clusters))
 
     with open(output_file_name, "w") as inter:
         inter.write("lat,lon\n")
         for i in range(num_clusters):
-            inter.write("{0:f},{1:f}\n".format(cluster_intersections[i,0] , cluster_intersections[i, 1]))
+            inter.write("{0:f},{1:f}\n".format(clustered_intersections[i,0] , clustered_intersections[i, 1]))
 
     print(f"Done writing cluster intersections to the file: {output_file_name}.")
 
@@ -366,13 +366,13 @@ def triangulate(coco_file):
     objects_connectivity = mrf_energy_minimization(object_dst, objects_base)
 
     # Step 4: Cluster intersections
-    cluster_intersections = clustering(objects_base, objects_connectivity, intersections)
+    clustered_intersections = clustering(objects_base, objects_connectivity, intersections)
 
-    cluster_intersections = convert_intersections_to_wgs_coords(cluster_intersections)
+    clustered_intersections = convert_intersections_to_wgs_coords(clustered_intersections)
 
     print("Elapsed total time: {0:.2f} seconds.".format(time.time() - start))
 
-    return cluster_intersections
+    return clustered_intersections
 
 
 if __name__ == "__main__":

@@ -323,6 +323,7 @@ def clustering(objects_base, objects_connectivity, intersects):
 
     return cluster_intersections
 
+
 def convert_intersections_to_wgs_coords(intersections):
     """
     Converts all points of interest from Rijksdriekhoek to wgs84 coordinates
@@ -332,7 +333,23 @@ def convert_intersections_to_wgs_coords(intersections):
     return intersections
 
 
-def triangulate(coco_file, output_file_name):
+def write_output(output_file_name, clustered_intersections):
+    """
+    Write clustered intersections (a 2D list of floats) to an output file.
+    """
+    num_clusters = clustered_intersections.shape[0]
+
+    print("Number of output ICM clusters: {0:d}".format(num_clusters))
+
+    with open(output_file_name, "w") as inter:
+        inter.write("lat,lon\n")
+        for i in range(num_clusters):
+            inter.write("{0:f},{1:f}\n".format(clustered_intersections[i,0] , clustered_intersections[i, 1]))
+
+    print(f"Done writing cluster intersections to the file: {output_file_name}.")
+
+
+def triangulate(coco_file):
     """
     Finds all the points of interest from provided predictions in COCO format on panorama images,
     outputs a csv file that lists all identified objects with their corresponding location
@@ -349,20 +366,13 @@ def triangulate(coco_file, output_file_name):
     objects_connectivity = mrf_energy_minimization(object_dst, objects_base)
 
     # Step 4: Cluster intersections
-    cluster_intersections = clustering(objects_base, objects_connectivity, intersections)
+    clustered_intersections = clustering(objects_base, objects_connectivity, intersections)
 
-    cluster_intersections = convert_intersections_to_wgs_coords(cluster_intersections)
-
-    # Write to the output file
-    num_clusters = cluster_intersections.shape[0]
-    with open(output_file_name, "w") as inter:
-        inter.write("lat,lon\n")
-        for i in range(num_clusters):
-            inter.write("{0:f},{1:f}\n".format(cluster_intersections[i,0] , cluster_intersections[i, 1]))
-
-    print("Number of output ICM clusters: {0:d}".format(num_clusters))
+    clustered_intersections = convert_intersections_to_wgs_coords(clustered_intersections)
 
     print("Elapsed total time: {0:.2f} seconds.".format(time.time() - start))
+
+    return clustered_intersections
 
 
 if __name__ == "__main__":

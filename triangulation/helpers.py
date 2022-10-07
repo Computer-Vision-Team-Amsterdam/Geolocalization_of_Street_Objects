@@ -95,5 +95,10 @@ def get_panos_from_points_of_interest(point_of_interest, timestamp_before, times
                 location=location,
                 timestamp_after=timestamp_after,
                 timestamp_before=timestamp_before)
-            panoramas.append(query_result.panoramas[0])
+
+            if not query_result.panoramas:
+                print("WARNING: No panoramic image found for the provided location point.")
+                panoramas.append(None)
+            else:
+                panoramas.append(query_result.panoramas[0])
     return panoramas

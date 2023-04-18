@@ -157,7 +157,7 @@ def read_inputfile(input_file):
             center_y = sum([areas[i] * centroids[i][1] for i in range(len(areas))]) / sum(areas)
             # Filter the dataframe based on a value in the 'panorama_file_name' column
             filtered_df = df.loc[df['panorama_file_name'] == pano_id]
-            #jm
+            #jmm
             # Convert the 'latitude[deg]' and 'longitude[deg]' columns to float values
             x = filtered_df['latitude[deg]'].astype(float).values[0] # TODO misschien swithchen
             y = filtered_df['longitude[deg]'].astype(float).values[0]

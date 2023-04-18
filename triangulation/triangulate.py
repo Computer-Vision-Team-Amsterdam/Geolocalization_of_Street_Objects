@@ -23,6 +23,7 @@ from imantics import Mask
 from shapely.geometry import Polygon
 from datetime import date
 from panorama.client import PanoramaClient
+import pandas as pd
 
 
 from triangulation.helpers import get_pano_location, pixel_to_viewpoint, euclidean_distance, rd_to_wgs, \
@@ -136,6 +137,8 @@ def read_inputfile(input_file):
     """
     objects_base = []
 
+    df = pd.read_csv("result_subset.csv", sep=',')
+
     with open(input_file) as f:
         for detected_instance in tqdm(json.load(f)):
             pano_id = detected_instance['pano_id'].replace(".jpg", "")
@@ -152,7 +155,13 @@ def read_inputfile(input_file):
                 centroids.append(list(shapely_polygon.centroid.coords[0]))
             center_x = sum([areas[i] * centroids[i][0] for i in range(len(areas))]) / sum(areas)
             center_y = sum([areas[i] * centroids[i][1] for i in range(len(areas))]) / sum(areas)
-            x, y = get_pano_location(pano_id)
+            # Filter the dataframe based on a value in the 'panorama_file_name' column
+            filtered_df = df.loc[df['panorama_file_name'] == pano_id]
+
+            # Convert the 'latitude[deg]' and 'longitude[deg]' columns to float values
+            x = filtered_df['latitude[deg]'].astype(float).values[0] # TODO misschien swithchen
+            y = filtered_df['longitude[deg]'].astype(float).values[0]
+
             viewpoint_to_object = pixel_to_viewpoint(center_x, img_width)
             depth = 5 # TODO: ADD DEPTH ESTIMATION
 
